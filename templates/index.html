@@ -1,14 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Random Video Chat</title>
-  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call Platform</title>
 </head>
 <body>
-  <video id="localVideo" autoplay muted></video>
-  <video id="remoteVideo" autoplay></video>
-  <button onclick="skip()">Skip</button>
+    <h1>Welcome to the Video Call Platform</h1>
+    <button id="createRoomButton">Create Room</button>
+    <br>
+    <label for="roomCode">Enter Room Code:</label>
+    <input type="text" id="roomCode" placeholder="Room Code">
+    <button id="joinRoomButton">Join Room</button>
 
-  <script src="/static/script.js"></script>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        
+        document.getElementById('createRoomButton').onclick = function() {
+            socket.emit('create_room');
+        }
+
+        document.getElementById('joinRoomButton').onclick = function() {
+            const roomCode = document.getElementById('roomCode').value;
+            socket.emit('join_room', { room_code: roomCode });
+        }
+
+        socket.on('room_created', function(data) {
+            alert('Room created with code: ' + data.room_code);
+            window.location.href = '/room/' + data.room_code;  // Redirect to the room
+        });
+
+        socket.on('room_error', function(data) {
+            alert(data.message);
+        });
+    </script>
 </body>
 </html>
