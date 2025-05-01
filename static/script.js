@@ -15,9 +15,24 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     console.error('Error accessing media devices.', error);
   });
 
+// Room creation logic
+document.getElementById('createRoomButton').onclick = function () {
+  socket.emit('create_room');
+};
+
 socket.on('room_created', data => {
   alert(`Room created! Room code: ${data.room_code}`);
   window.location.href = `/room/${data.room_code}`;  // Redirect to the room page
+});
+
+// Join a room when the user provides a room code
+document.getElementById('joinRoomButton').onclick = function () {
+  const roomCode = document.getElementById('roomCode').value;
+  socket.emit('join_room', { room_code: roomCode });
+};
+
+socket.on('waiting_for_partner', data => {
+  alert(`You are waiting for a partner in room: ${data.room_code}`);
 });
 
 socket.on('match', ({ room_code, peer }) => {
@@ -73,12 +88,6 @@ socket.on('skip_match', () => {
   alert('The other participant skipped the match!');
   window.location.reload(); // Reload the page to find a new partner
 });
-
-// Join a room when a user provides a room code
-document.getElementById('joinRoomButton').onclick = function () {
-  const roomCode = document.getElementById('roomCode').value;
-  socket.emit('join_room', { room_code: roomCode });
-};
 
 // Skip button logic to leave the current match
 document.getElementById('skipButton').onclick = function () {
